@@ -1,0 +1,86 @@
+/**
+ * index.css
+ *
+ * PURPOSE:
+ * Global stylesheet loaded once by main.jsx. Must contain the Tailwind
+ * directives AND the custom utility classes that every page in this
+ * project already assumes exist — none of the pasted pages define these
+ * classes inline, they all just use className="card", "btn-primary",
+ * "btn-secondary", "input-field", "badge-green", "badge-yellow",
+ * "badge-red", "text-danger", "text-success" and Tailwind's own utilities
+ * like text-brand-light, bg-brand, border-brand (which also require the
+ * "brand" color to be added to tailwind.config.js — see that file's stub).
+ *
+ * CONNECTS TO:
+ * - tailwind.config.js (the `brand` color + any font config referenced
+ *   here via @apply / theme())
+ * - Every page/component in src/pages and src/components (they all rely
+ *   on the class names defined here)
+ *
+ * NOT YET IMPLEMENTED — build this file yourself, or hand the prompt
+ * below to an AI assistant:
+ *
+ * PROMPT TO GENERATE THIS FILE:
+ * "Create index.css starting with the three Tailwind directives
+ * (@tailwind base; @tailwind components; @tailwind utilities;). Then,
+ * inside a @layer components block, define these reusable classes with
+ * @apply so every existing page (Login, Dashboard, Notes, Flashcards,
+ * Quiz, RescueMode, Profile, etc.) renders correctly out of the box:
+ *   .card         -> rounded-2xl bg-slate-900 border border-slate-800 p-5
+ *   .btn-primary  -> rounded-xl bg-brand hover:bg-brand-light text-white
+ *                    font-medium px-4 py-2 transition disabled:opacity-50
+ *   .btn-secondary-> rounded-xl border border-slate-700 hover:border-brand
+ *                    text-slate-200 font-medium px-4 py-2 transition
+ *   .input-field  -> w-full rounded-xl bg-slate-950 border border-slate-700
+ *                    px-3 py-2 text-sm text-slate-200 placeholder-slate-500
+ *                    focus:outline-none focus:border-brand
+ *   .badge-green  -> text-emerald-400 font-medium
+ *   .badge-yellow -> text-amber-400 font-medium
+ *   .badge-red    -> text-rose-400 font-medium
+ *   .text-danger  -> text-rose-400
+ *   .text-success -> text-emerald-400
+ * Also set a base dark background (body { @apply bg-slate-950 text-slate-100; })."
+ */
+
+
+
+ @tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-100;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl bg-slate-900 border border-slate-800 p-5;
+  }
+  .btn-primary {
+    @apply rounded-xl bg-brand hover:bg-brand-light text-white font-medium px-4 py-2 transition disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply rounded-xl border border-slate-700 hover:border-brand text-slate-200 font-medium px-4 py-2 transition disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .input-field {
+    @apply w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand;
+  }
+  .badge-green {
+    @apply text-emerald-400 font-medium;
+  }
+  .badge-yellow {
+    @apply text-amber-400 font-medium;
+  }
+  .badge-red {
+    @apply text-rose-400 font-medium;
+  }
+
+  .text-danger {
+    @apply text-rose-400;
+  }
+  .text-success {
+    @apply text-emerald-400;
+  }
+}
