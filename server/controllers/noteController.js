@@ -15,7 +15,6 @@
  * - routes/noteRoutes.js
  */
 
-const fs = require("fs");
 const Note = require("../models/Note");
 const Topic = require("../models/Topic");
 const Flashcard = require("../models/Flashcard");
@@ -40,15 +39,13 @@ const uploadNote = asyncHandler(async (req, res) => {
   let originalFileName = "";
 
   if (req.file) {
+    // multer is configured with memoryStorage (see middleware/upload.js),
+    // so the PDF never touches disk — it's read straight from the
+    // buffer. This is required for serverless hosts like Vercel, whose
+    // filesystem is read-only outside of /tmp.
     sourceType = "pdf";
     originalFileName = req.file.originalname;
-    try {
-      rawText = await extractTextFromPdf(req.file.path);
-    } finally {
-      // Clean up the uploaded file from disk once text is extracted;
-      // we persist the extracted text in MongoDB, not the original PDF.
-      fs.unlink(req.file.path, () => {});
-    }
+    rawText = await extractTextFromPdf(req.file.buffer);
   } else if (pastedText && pastedText.trim().length > 0) {
     rawText = pastedText.trim();
   } else {
