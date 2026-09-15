@@ -2,13 +2,8 @@
  * pages/Notes.jsx
  * Upload a PDF or paste text, list existing notes, trigger the one-time
  * AI analysis, and show the resulting summary/key terms (via SmartText)
- * once analyzed, with links into Flashcards/Quiz.
- */
-/**
- * pages/Notes.jsx
- * Upload a PDF or paste text, list existing notes, trigger the one-time
- * AI analysis, and show the resulting summary/key terms (via SmartText)
- * once analyzed, with links into Flashcards/Quiz.
+ * for ANY analyzed note — not just the one most recently analyzed —
+ * with links into Flashcards/Quiz.
  */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -26,8 +21,8 @@ export default function Notes() {
   const [uploading, setUploading] = useState(false);
   const [analyzingId, setAnalyzingId] = useState(null);
   const [error, setError] = useState("");
-  const [activeNote, setActiveNote] = useState(null);
-  const [quizId, setQuizId] = useState(null);
+  const [expandedId, setExpandedId] = useState(null);
+  const [quizLoadingId, setQuizLoadingId] = useState(null);
 
   function loadNotes() {
     api.get("/notes").then((res) => setNotes(res.data.data.notes));
@@ -56,14 +51,17 @@ export default function Notes() {
       } else {
         res = await api.post("/notes/upload", { subject, title, text });
       }
+      const newNoteId = res.data.data.note._id;
       setSubject("");
       setTitle("");
       setText("");
       setFile(null);
       loadNotes();
 
-      // Immediately kick off analysis for a smoother demo flow.
-      await handleAnalyze(res.data.data.note._id);
+      // Immediately kick off analysis for a smoother demo flow, and
+      // auto-expand it once done so the buttons are visible right away.
+      await handleAnalyze(newNoteId);
+      setExpandedId(newNoteId);
     } catch (err) {
       setError(err.response?.data?.message || "Upload failed");
     } finally {
@@ -75,14 +73,26 @@ export default function Notes() {
     setAnalyzingId(noteId);
     setError("");
     try {
-      const res = await api.post(`/notes/${noteId}/analyze`);
-      setQuizId(res.data.data.quiz._id);
+      await api.post(`/notes/${noteId}/analyze`);
       loadNotes();
-      setActiveNote(res.data.data.note);
+      setExpandedId(noteId);
     } catch (err) {
       setError(err.response?.data?.message || "Analysis failed");
     } finally {
       setAnalyzingId(null);
+    }
+  }
+
+  async function handleTakeQuiz(noteId) {
+    setQuizLoadingId(noteId);
+    setError("");
+    try {
+      const res = await api.get(`/notes/${noteId}/quiz`);
+      navigate(`/quiz/${res.data.data.quiz._id}`);
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not find a quiz for this note");
+    } finally {
+      setQuizLoadingId(null);
     }
   }
 
@@ -127,48 +137,63 @@ export default function Notes() {
       </form>
 
       <div className="grid gap-4">
-        {notes.map((n) => (
-          <div key={n._id} className="card card-hover">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="font-semibold text-slate-800">{n.title}</p>
-                <p className="text-xs text-slate-400">
-                  {n.subject} · {n.sourceType.toUpperCase()} · {n.status}
-                </p>
-              </div>
-              {n.status !== "analyzed" && (
-                <button
-                  className="btn-secondary text-sm"
-                  onClick={() => handleAnalyze(n._id)}
-                  disabled={analyzingId === n._id}
-                >
-                  {analyzingId === n._id ? "Analyzing…" : "Analyze"}
-                </button>
-              )}
-            </div>
+        {notes.map((n) => {
+          const isAnalyzed = n.status === "analyzed";
+          const isExpanded = expandedId === n._id;
 
-            {activeNote?._id === n._id && (
-              <div className="mt-4 space-y-3">
-                <SmartText
-                  text={activeNote.summary}
-                  keyTerms={activeNote.keyTerms}
-                  subject={activeNote.subject}
-                  noteId={activeNote._id}
-                />
-                <div className="flex gap-3">
+          return (
+            <div key={n._id} className="card card-hover">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="font-semibold text-slate-800">{n.title}</p>
+                  <p className="text-xs text-slate-400">
+                    {n.subject} · {n.sourceType.toUpperCase()} · {n.status}
+                  </p>
+                </div>
+
+                {!isAnalyzed && (
+                  <button
+                    className="btn-secondary text-sm"
+                    onClick={() => handleAnalyze(n._id)}
+                    disabled={analyzingId === n._id}
+                  >
+                    {analyzingId === n._id ? "Analyzing…" : "Analyze"}
+                  </button>
+                )}
+
+                {isAnalyzed && (
+                  <button
+                    className="btn-secondary text-sm"
+                    onClick={() => setExpandedId(isExpanded ? null : n._id)}
+                  >
+                    {isExpanded ? "Hide Summary" : "View Summary"}
+                  </button>
+                )}
+              </div>
+
+              {isAnalyzed && isExpanded && (
+                <div className="mt-4 space-y-3">
+                  <SmartText text={n.summary} keyTerms={n.keyTerms} subject={n.subject} noteId={n._id} />
+                </div>
+              )}
+
+              {isAnalyzed && (
+                <div className="flex gap-3 mt-4">
                   <button className="btn-secondary text-sm" onClick={() => navigate("/flashcards")}>
                     Review Flashcards
                   </button>
-                  {quizId && (
-                    <button className="btn-primary text-sm" onClick={() => navigate(`/quiz/${quizId}`)}>
-                      Take Quiz
-                    </button>
-                  )}
+                  <button
+                    className="btn-primary text-sm"
+                    onClick={() => handleTakeQuiz(n._id)}
+                    disabled={quizLoadingId === n._id}
+                  >
+                    {quizLoadingId === n._id ? "Loading…" : "Take Quiz"}
+                  </button>
                 </div>
-              </div>
-            )}
-          </div>
-        ))}
+              )}
+            </div>
+          );
+        })}
         {notes.length === 0 && <p className="text-slate-500">No notes yet — upload your first one above.</p>}
       </div>
     </div>

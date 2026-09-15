@@ -158,4 +158,18 @@ const analyzeNote = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { uploadNote, listNotes, getNote, analyzeNote };
+// GET /api/notes/:id/quiz
+// Looks up the quiz generated for this note, so the Notes page can link
+// "Take Quiz" for a note that was already analyzed in a previous visit
+// (the quiz id isn't otherwise persisted anywhere the frontend can see).
+const getNoteQuiz = asyncHandler(async (req, res) => {
+  const note = await Note.findOne({ _id: req.params.id, user: req.user._id });
+  if (!note) throw new ApiError(404, "Note not found");
+
+  const quiz = await Quiz.findOne({ note: note._id, user: req.user._id }).sort({ createdAt: -1 });
+  if (!quiz) throw new ApiError(404, "No quiz found for this note yet — analyze it first");
+
+  res.json({ success: true, data: { quiz } });
+});
+
+module.exports = { uploadNote, listNotes, getNote, analyzeNote, getNoteQuiz };
