@@ -5,6 +5,12 @@
  * "Rescue Mode" button for any weak (<50%) topic — this is the bridge
  * into the killer feature.
  */
+/**
+ * pages/Quiz.jsx
+ * Loads a quiz by id, lets the student answer every question, submits
+ * to POST /api/quizzes/:id/submit, then shows topic-wise results with a
+ * "Rescue Mode" button for any weak (<50%) topic.
+ */
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
@@ -21,7 +27,6 @@ export default function Quiz() {
 
   useEffect(() => {
     api.get(`/quizzes/${quizId}`).then((res) => setQuiz(res.data.data.quiz));
-    // Fetch topics so we can link "Rescue" buttons to a real Topic _id.
     api.get("/progress/topics").then((res) => {
       const map = {};
       res.data.data.topics.forEach((t) => (map[t.name] = t._id));
@@ -53,20 +58,20 @@ export default function Quiz() {
     return (
       <div className="max-w-xl mx-auto space-y-6">
         <div className="card text-center">
-          <p className="text-3xl font-bold text-brand-light">
+          <p className="text-3xl font-bold text-brand">
             {result.score}/{result.total}
           </p>
-          <p className="text-slate-400">{result.percentage}% correct</p>
+          <p className="text-slate-500">{result.percentage}% correct</p>
         </div>
 
         <div className="card space-y-3">
-          <p className="text-sm font-medium mb-2">Topic breakdown</p>
+          <p className="text-sm font-semibold text-slate-700 mb-2">Topic breakdown</p>
           {result.topicBreakdown.map((t) => {
             const pct = Math.round((t.correct / t.total) * 100);
             const dot = pct >= 70 ? "🟢" : pct >= 40 ? "🟡" : "🔴";
             return (
               <div key={t.topic} className="flex justify-between items-center text-sm">
-                <span>
+                <span className="text-slate-700">
                   {dot} {t.topic}
                 </span>
                 <div className="flex items-center gap-3">
@@ -92,21 +97,21 @@ export default function Quiz() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold">Quiz — {quiz.subject}</h1>
+      <h1 className="text-2xl font-bold text-slate-800">Quiz — {quiz.subject}</h1>
 
       {quiz.questions.map((q, i) => (
         <div key={q._id} className="card">
-          <p className="font-medium mb-3">
+          <p className="font-medium text-slate-800 mb-3">
             {i + 1}. {q.question}
           </p>
           <div className="space-y-2">
             {q.options.map((opt) => (
               <label
                 key={opt}
-                className={`block rounded-xl px-3 py-2 text-sm border cursor-pointer ${
+                className={`block rounded-xl px-3 py-2 text-sm border cursor-pointer transition-all hover:-translate-y-0.5 ${
                   answers[q._id] === opt
-                    ? "bg-brand/20 border-brand text-brand-light"
-                    : "border-slate-700 text-slate-300"
+                    ? "bg-brand/10 border-brand text-brand shadow-soft"
+                    : "border-slate-200 text-slate-600 hover:border-brand/30"
                 }`}
               >
                 <input

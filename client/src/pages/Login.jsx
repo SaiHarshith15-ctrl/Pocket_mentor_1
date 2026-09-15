@@ -3,6 +3,11 @@
  * Email/password login. On success, AuthContext stores the JWT and
  * ProtectedRoute takes over routing (dashboard vs onboarding).
  */
+/**
+ * pages/Login.jsx
+ * Email/password login. On success, AuthContext stores the JWT and
+ * ProtectedRoute takes over routing (dashboard vs onboarding).
+ */
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -30,10 +35,10 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-      <div className="card w-full max-w-sm">
-        <h1 className="text-2xl font-bold mb-1">Welcome back</h1>
-        <p className="text-slate-400 text-sm mb-6">Your notes. Your weak points. Your exam plan.</p>
+    <div className="min-h-screen flex items-center justify-center bg-canvas px-4">
+      <div className="card shadow-popup w-full max-w-sm animate-pop-in">
+        <h1 className="text-2xl font-serif italic font-medium text-slate-800 mb-1">Welcome back</h1>
+        <p className="text-slate-500 text-sm mb-6">Your notes. Your weak points. Your exam plan.</p>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <input
@@ -58,13 +63,13 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="text-sm text-slate-400 mt-4">
+        <p className="text-sm text-slate-500 mt-4">
           No account?{" "}
-          <Link to="/register" className="text-brand-light">
+          <Link to="/register" className="text-brand font-medium">
             Register
           </Link>
         </p>
-        <p className="text-xs text-slate-600 mt-4">
+        <p className="text-xs text-slate-400 mt-4">
           Demo login (after running the seed script): demo@pocketmentor.dev / password123
         </p>
       </div>

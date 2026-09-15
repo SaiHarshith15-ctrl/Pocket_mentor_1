@@ -35,12 +35,12 @@
 
 export default function LoadingSpinner({ full = false }) {
   const spinner = (
-    <div className="w-6 h-6 rounded-full border-2 border-slate-700 border-t-brand animate-spin" />
+    <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-brand animate-spin" />
   );
 
   if (full) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950">{spinner}</div>
+      <div className="min-h-screen flex items-center justify-center bg-canvas">{spinner}</div>
     );
   }
 

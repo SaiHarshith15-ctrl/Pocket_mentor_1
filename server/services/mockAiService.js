@@ -122,10 +122,44 @@ function mockTargetedRevision(topic) {
   };
 }
 
-function mockMentorReply(userMessage, userContext) {
-  const weakest = userContext.weakTopics?.[0];
-  const lower = userMessage.toLowerCase();
+// ---------------------------------------------------------------------
+// AI Mentor chat mock
+//
+// Handles, in priority order: greetings (with/without "how are you"),
+// thanks/closing messages, an explicit time budget ("I have 20 minutes"),
+// a named subject the student takes, and finally falls back to
+// recommending the weakest topic. This replaces the old version, which
+// only branched on the word "minute" and otherwise always returned the
+// same "weakest topic" message regardless of what was actually said.
+// ---------------------------------------------------------------------
 
+const GREETING_RE = /^\s*(hi|hello|hey|yo|sup|good\s?(morning|afternoon|evening))\b/i;
+const HOW_ARE_YOU_RE = /how\s+are\s+you/i;
+const THANKS_RE = /^\s*(thanks|thank you|thx|ty)\b/i;
+
+function mockMentorReply(userMessage, userContext) {
+  const message = String(userMessage || "");
+  const lower = message.toLowerCase();
+  const weakest = userContext?.weakTopics?.[0];
+
+  // Greeting, optionally with "how are you"
+  if (GREETING_RE.test(message) || HOW_ARE_YOU_RE.test(message)) {
+    if (HOW_ARE_YOU_RE.test(message)) {
+      return weakest
+        ? `I'm doing great, thanks for asking! Whenever you're ready, ${weakest.name} is sitting at ${weakest.mastery}% mastery — your weakest spot right now. Want to start there, or tell me what's on your mind.`
+        : `I'm doing great, thanks for asking! I don't have any weak topics flagged for you yet — take a quiz or upload some notes and I'll start giving you real recommendations. What would you like to study?`;
+    }
+    return weakest
+      ? `Hey! Good to see you. Your weakest topic right now is ${weakest.name} at ${weakest.mastery}% mastery — want a quick revision plan for that, or something else on your mind?`
+      : `Hey! Good to see you. I don't have enough quiz data yet to flag a weak topic — upload some notes or take a quiz first, then come back and I'll have real recommendations.`;
+  }
+
+  // Thanks / closing
+  if (THANKS_RE.test(message)) {
+    return `Anytime! Keep the momentum going — even 15 focused minutes on ${weakest ? weakest.name : "your weakest topic"} adds up. Ping me whenever you want another plan.`;
+  }
+
+  // Time budget mentioned, e.g. "I have 20 minutes"
   if (lower.includes("minute")) {
     const minutesMatch = lower.match(/(\d+)\s*min/);
     const minutes = minutesMatch ? parseInt(minutesMatch[1], 10) : 20;
@@ -139,6 +173,15 @@ function mockMentorReply(userMessage, userContext) {
     );
   }
 
+  // Student named a subject they take
+  const subjectHit = (userContext?.subjects || []).find((s) => lower.includes(String(s).toLowerCase()));
+  if (subjectHit) {
+    return weakest && weakest.subject === subjectHit
+      ? `${subjectHit} — good call. Your weakest area there is ${weakest.name} at ${weakest.mastery}% mastery, so that's where I'd start. Want me to set up a revision session?`
+      : `${subjectHit} — good call. I don't see a specific weak topic flagged for it yet, so try a quiz there first and I'll be able to point you at exactly what to revise.`;
+  }
+
+  // Fallback
   if (weakest) {
     return (
       `Based on your recent performance, I'd focus on ${weakest.name} next — ` +

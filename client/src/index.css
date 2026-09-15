@@ -1,86 +1,81 @@
-/**
- * index.css
- *
- * PURPOSE:
- * Global stylesheet loaded once by main.jsx. Must contain the Tailwind
- * directives AND the custom utility classes that every page in this
- * project already assumes exist — none of the pasted pages define these
- * classes inline, they all just use className="card", "btn-primary",
- * "btn-secondary", "input-field", "badge-green", "badge-yellow",
- * "badge-red", "text-danger", "text-success" and Tailwind's own utilities
- * like text-brand-light, bg-brand, border-brand (which also require the
- * "brand" color to be added to tailwind.config.js — see that file's stub).
- *
- * CONNECTS TO:
- * - tailwind.config.js (the `brand` color + any font config referenced
- *   here via @apply / theme())
- * - Every page/component in src/pages and src/components (they all rely
- *   on the class names defined here)
- *
- * NOT YET IMPLEMENTED — build this file yourself, or hand the prompt
- * below to an AI assistant:
- *
- * PROMPT TO GENERATE THIS FILE:
- * "Create index.css starting with the three Tailwind directives
- * (@tailwind base; @tailwind components; @tailwind utilities;). Then,
- * inside a @layer components block, define these reusable classes with
- * @apply so every existing page (Login, Dashboard, Notes, Flashcards,
- * Quiz, RescueMode, Profile, etc.) renders correctly out of the box:
- *   .card         -> rounded-2xl bg-slate-900 border border-slate-800 p-5
- *   .btn-primary  -> rounded-xl bg-brand hover:bg-brand-light text-white
- *                    font-medium px-4 py-2 transition disabled:opacity-50
- *   .btn-secondary-> rounded-xl border border-slate-700 hover:border-brand
- *                    text-slate-200 font-medium px-4 py-2 transition
- *   .input-field  -> w-full rounded-xl bg-slate-950 border border-slate-700
- *                    px-3 py-2 text-sm text-slate-200 placeholder-slate-500
- *                    focus:outline-none focus:border-brand
- *   .badge-green  -> text-emerald-400 font-medium
- *   .badge-yellow -> text-amber-400 font-medium
- *   .badge-red    -> text-rose-400 font-medium
- *   .text-danger  -> text-rose-400
- *   .text-success -> text-emerald-400
- * Also set a base dark background (body { @apply bg-slate-950 text-slate-100; })."
- */
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,500;0,600;1,500&display=swap");
 
-
-
- @tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100;
+    @apply bg-canvas text-slate-800 font-sans antialiased;
   }
 }
 
 @layer components {
+  /* Surfaces */
   .card {
-    @apply rounded-2xl bg-slate-900 border border-slate-800 p-5;
+    @apply rounded-2xl bg-white border border-slate-200/80 p-5 shadow-card transition-all duration-200;
   }
+  .card-hover {
+    @apply hover:-translate-y-0.5 hover:shadow-lift hover:border-brand/30;
+  }
+
+  /* Buttons */
   .btn-primary {
-    @apply rounded-xl bg-brand hover:bg-brand-light text-white font-medium px-4 py-2 transition disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply rounded-xl bg-brand text-white font-semibold px-4 py-2 shadow-soft
+      transition-all duration-150 hover:bg-brand-dark hover:-translate-y-0.5 hover:shadow-lift
+      active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none disabled:translate-y-0;
   }
   .btn-secondary {
-    @apply rounded-xl border border-slate-700 hover:border-brand text-slate-200 font-medium px-4 py-2 transition disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold px-4 py-2
+      transition-all duration-150 hover:border-brand/40 hover:text-brand hover:-translate-y-0.5 hover:shadow-soft
+      active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none disabled:translate-y-0;
   }
+
+  /* Inputs */
   .input-field {
-    @apply w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand;
+    @apply w-full rounded-xl bg-white border border-slate-200 px-3 py-2 text-sm text-slate-800
+      placeholder-slate-400 transition focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/10;
   }
+
+  /* Badges */
   .badge-green {
-    @apply text-emerald-400 font-medium;
+    @apply inline-flex items-center rounded-full bg-emerald-50 text-emerald-600 font-semibold text-xs px-2.5 py-1;
   }
   .badge-yellow {
-    @apply text-amber-400 font-medium;
+    @apply inline-flex items-center rounded-full bg-amber-50 text-amber-600 font-semibold text-xs px-2.5 py-1;
   }
   .badge-red {
-    @apply text-rose-400 font-medium;
+    @apply inline-flex items-center rounded-full bg-rose-50 text-rose-600 font-semibold text-xs px-2.5 py-1;
   }
 
   .text-danger {
-    @apply text-rose-400;
+    @apply text-rose-500;
   }
   .text-success {
-    @apply text-emerald-400;
+    @apply text-emerald-500;
   }
+}
+
+/* --- 3D flip flashcard --- */
+.flip-scene {
+  perspective: 1600px;
+}
+.flip-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
+}
+.flip-card.is-flipped {
+  transform: rotateY(180deg);
+}
+.flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-face-back {
+  transform: rotateY(180deg);
 }

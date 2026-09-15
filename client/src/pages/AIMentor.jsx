@@ -5,6 +5,12 @@
  * about persisting this server-side in Phase 2). Offers a quick
  * "Start Rescue Mode" action when the mentor names a weak topic.
  */
+/**
+ * pages/AIMentor.jsx
+ * Simple chat UI backed by POST /api/mentor/chat. Sends the running
+ * conversation history with each request. Offers a quick
+ * "Start Rescue Mode" action when the mentor names a weak topic.
+ */
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
@@ -22,7 +28,7 @@ export default function AIMentor() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, sending]);
 
   useEffect(() => {
     api.get("/progress/topics").then((res) => {
@@ -55,19 +61,38 @@ export default function AIMentor() {
 
   return (
     <div className="max-w-xl mx-auto flex flex-col h-[75vh]">
-      <h1 className="text-2xl font-bold mb-4">AI Mentor</h1>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-9 h-9 rounded-full bg-brand/10 text-brand flex items-center justify-center font-semibold">
+          AI
+        </div>
+        <div>
+          <h1 className="text-xl font-bold text-slate-800 leading-tight">AI Mentor</h1>
+          <p className="text-xs text-slate-400">Grounded in your notes and quiz history</p>
+        </div>
+      </div>
 
       <div className="flex-1 overflow-y-auto space-y-3 pr-1">
         {messages.map((m, i) => (
           <div
             key={i}
-            className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
-              m.role === "user" ? "bg-brand/20 text-brand-light ml-auto" : "bg-slate-900 border border-slate-800"
+            className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm shadow-soft ${
+              m.role === "user"
+                ? "bg-brand text-white ml-auto"
+                : "bg-white border border-slate-200 text-slate-700"
             }`}
           >
             {m.content}
           </div>
         ))}
+        {sending && (
+          <div className="max-w-[60%] rounded-2xl px-4 py-2.5 text-sm bg-white border border-slate-200 text-slate-400 shadow-soft">
+            <span className="inline-flex gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-bounce [animation-delay:-0.2s]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-bounce [animation-delay:-0.1s]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-bounce" />
+            </span>
+          </div>
+        )}
         <div ref={bottomRef} />
       </div>
 

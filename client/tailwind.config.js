@@ -1,43 +1,38 @@
-/**
- * tailwind.config.js
- *
- * PURPOSE:
- * Configures Tailwind's content scanning paths and extends the default
- * theme with the custom `brand` color palette every page already
- * references (text-brand-light, bg-brand, border-brand, from-brand,
- * to-brand, bg-brand/20, etc. appear throughout Login, Dashboard,
- * Onboarding, Notes, Quiz, RescueMode, Profile...).
- *
- * CONNECTS TO:
- * - src/index.css (the file that actually invokes @tailwind directives)
- * - postcss.config.js (wires Tailwind into the PostCSS pipeline)
- * - every .jsx file under src/ (Tailwind's `content` globs must include
- *   them or classes get purged in production builds)
- *
- * NOT YET IMPLEMENTED — build this file yourself, or hand the prompt
- * below to an AI assistant:
- *
- * PROMPT TO GENERATE THIS FILE:
- * "Create tailwind.config.js with module.exports = { content: ['./index.html',
- * './src/**\/*.{js,jsx}'], theme: { extend: { colors: { brand: { DEFAULT:
- * '#6366f1', light: '#818cf8' } } } }, plugins: [] }. Pick any indigo/violet
- * shade you like for `brand` and `brand-light` — they just need to exist
- * so classes like bg-brand and text-brand-light used throughout the
- * pasted pages resolve to real colors instead of being ignored."
- */
-
-
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
     extend: {
       colors: {
+        canvas: "#F5F6FA",
         brand: {
-          DEFAULT: "#6366f1",
-          light: "#818cf8",
+          DEFAULT: "#4F46E5",
+          light: "#6D64F0",
+          dark: "#3F37C9",
         },
+        accent: {
+          DEFAULT: "#F59E0B",
+          light: "#FBBF24",
+        },
+      },
+      fontFamily: {
+        sans: ["'Plus Jakarta Sans'", "system-ui", "sans-serif"],
+        serif: ["'Fraunces'", "serif"],
+      },
+      boxShadow: {
+        soft: "0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08)",
+        card: "0 2px 6px -1px rgba(16, 24, 40, 0.07), 0 1px 2px rgba(16, 24, 40, 0.05)",
+        lift: "0 16px 32px -12px rgba(79, 70, 229, 0.28)",
+        popup: "0 24px 60px -12px rgba(16, 24, 40, 0.35)",
+      },
+      keyframes: {
+        "pop-in": {
+          "0%": { opacity: 0, transform: "scale(0.92) translateY(8px)" },
+          "100%": { opacity: 1, transform: "scale(1) translateY(0)" },
+        },
+      },
+      animation: {
+        "pop-in": "pop-in 0.22s cubic-bezier(0.16, 1, 0.3, 1)",
       },
     },
   },

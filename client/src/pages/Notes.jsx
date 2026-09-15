@@ -4,6 +4,12 @@
  * AI analysis, and show the resulting summary/key terms (via SmartText)
  * once analyzed, with links into Flashcards/Quiz.
  */
+/**
+ * pages/Notes.jsx
+ * Upload a PDF or paste text, list existing notes, trigger the one-time
+ * AI analysis, and show the resulting summary/key terms (via SmartText)
+ * once analyzed, with links into Flashcards/Quiz.
+ */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
@@ -84,10 +90,10 @@ export default function Notes() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Notes</h1>
+      <h1 className="text-2xl font-bold text-slate-800">Notes</h1>
 
-      <form onSubmit={handleUpload} className="card space-y-3">
-        <p className="text-sm font-medium">Upload new notes</p>
+      <form onSubmit={handleUpload} className="card card-hover space-y-3">
+        <p className="text-sm font-semibold text-slate-700">Upload new notes</p>
         <div className="grid md:grid-cols-2 gap-3">
           <input
             className="input-field"
@@ -112,7 +118,7 @@ export default function Notes() {
           type="file"
           accept="application/pdf"
           onChange={(e) => setFile(e.target.files[0])}
-          className="text-sm text-slate-400"
+          className="text-sm text-slate-500"
         />
         {error && <p className="text-danger text-sm">{error}</p>}
         <button className="btn-primary" disabled={uploading}>
@@ -122,11 +128,11 @@ export default function Notes() {
 
       <div className="grid gap-4">
         {notes.map((n) => (
-          <div key={n._id} className="card">
+          <div key={n._id} className="card card-hover">
             <div className="flex justify-between items-start">
               <div>
-                <p className="font-semibold">{n.title}</p>
-                <p className="text-xs text-slate-500">
+                <p className="font-semibold text-slate-800">{n.title}</p>
+                <p className="text-xs text-slate-400">
                   {n.subject} · {n.sourceType.toUpperCase()} · {n.status}
                 </p>
               </div>

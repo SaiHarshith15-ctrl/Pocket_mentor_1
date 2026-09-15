@@ -1,8 +1,8 @@
 /**
  * App.jsx
  * Top-level route table. Public routes: /login, /register. Everything
- * else is wrapped in ProtectedRoute (see components/ProtectedRoute.jsx),
- * which also enforces onboarding completion.
+ * else is wrapped in ProtectedRoute, which also enforces onboarding
+ * completion.
  */
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -22,7 +22,7 @@ import Profile from "./pages/Profile";
 
 function Layout({ children }) {
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-canvas">
       <Navbar />
       <main className="max-w-6xl mx-auto px-4 py-6">{children}</main>
     </div>

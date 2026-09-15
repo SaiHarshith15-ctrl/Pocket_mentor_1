@@ -3,6 +3,11 @@
  * Creates a new account, then routes to /onboarding (handled by
  * ProtectedRoute checking user.onboardingComplete).
  */
+/**
+ * pages/Register.jsx
+ * Creates a new account, then routes to /onboarding (handled by
+ * ProtectedRoute checking user.onboardingComplete).
+ */
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -29,10 +34,10 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-      <div className="card w-full max-w-sm">
-        <h1 className="text-2xl font-bold mb-1">Create your account</h1>
-        <p className="text-slate-400 text-sm mb-6">Start turning your notes into mastery.</p>
+    <div className="min-h-screen flex items-center justify-center bg-canvas px-4">
+      <div className="card shadow-popup w-full max-w-sm animate-pop-in">
+        <h1 className="text-2xl font-serif italic font-medium text-slate-800 mb-1">Create your account</h1>
+        <p className="text-slate-500 text-sm mb-6">Start turning your notes into mastery.</p>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <input
@@ -65,9 +70,9 @@ export default function Register() {
           </button>
         </form>
 
-        <p className="text-sm text-slate-400 mt-4">
+        <p className="text-sm text-slate-500 mt-4">
           Already have an account?{" "}
-          <Link to="/login" className="text-brand-light">
+          <Link to="/login" className="text-brand font-medium">
             Log in
           </Link>
         </p>
