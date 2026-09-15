@@ -27,6 +27,14 @@
  * GEMINI_API_KEY comes from process.env.GEMINI_API_KEY. Set
  * USE_MOCK_AI=true in .env to avoid consuming real API quota during
  * development — see services/mockAiService.js for the fallback data.
+ *
+ * MODEL NAME:
+ * Google retires Gemini model IDs on a rolling basis (gemini-1.5-*,
+ * then gemini-2.0-*, then gemini-2.5-*, etc. have each been sunset in
+ * turn). Always set GEMINI_MODEL explicitly in your environment rather
+ * than relying on the fallback below — check
+ * https://ai.google.dev/gemini-api/docs/models for the current stable
+ * model name if you start seeing 404 "no longer available" errors.
  */
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
@@ -50,7 +58,7 @@ function getModel() {
     );
   }
   const genAI = new GoogleGenerativeAI(apiKey);
-  return genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-2.5-flash" });
+  return genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-3.6-flash" });
 }
 
 /**
