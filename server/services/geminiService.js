@@ -12,7 +12,9 @@
  * - controllers/mentorController.js (chat)
  * - controllers/flashcardController.js / termController (generateTopicExplanation)
  * - prompts/prompts.js (prompt templates)
- * - services/mockAiService.js (used when USE_MOCK_AI=true)
+ * - services/mockAiService.js (used when USE_MOCK_AI=true, AND as an
+ *   automatic fallback if Gemini is unavailable in real mode — see
+ *   RELIABILITY STRATEGY below)
  *
  * GEMINI FREE-TIER STRATEGY:
  * - analyzeNotes() is called ONCE per uploaded note. Its output (summary,
@@ -23,18 +25,32 @@
  * - Gemini is only called again for: Rescue Mode targeted content, AI
  *   Mentor chat replies, and on-demand term explanations.
  *
+ * RELIABILITY STRATEGY (retry + fallback):
+ * Gemini occasionally returns transient errors (503 "model overloaded",
+ * 429 rate limit) that have nothing to do with your code or key. Every
+ * public function below:
+ *   1. Retries the Gemini call a couple of times with backoff if the
+ *      error looks transient.
+ *   2. If it's still failing after retries, falls back to the same mock
+ *      data used in USE_MOCK_AI=true mode instead of throwing — so a
+ *      live demo degrades gracefully to "still works, just not freshly
+ *      AI-generated this one time" instead of visibly erroring out.
+ * This fallback only triggers on request-level failures (network/
+ * availability/rate-limit/bad-JSON). It does not run instead of Gemini
+ * by default — real mode still calls Gemini first every time.
+ *
  * IMPORTANT:
  * GEMINI_API_KEY comes from process.env.GEMINI_API_KEY. Set
  * USE_MOCK_AI=true in .env to avoid consuming real API quota during
  * development — see services/mockAiService.js for the fallback data.
  *
  * MODEL NAME:
- * Google retires Gemini model IDs on a rolling basis (gemini-1.5-*,
- * then gemini-2.0-*, then gemini-2.5-*, etc. have each been sunset in
- * turn). Always set GEMINI_MODEL explicitly in your environment rather
- * than relying on the fallback below — check
- * https://ai.google.dev/gemini-api/docs/models for the current stable
- * model name if you start seeing 404 "no longer available" errors.
+ * Google retires Gemini model IDs on a rolling basis. Always set
+ * GEMINI_MODEL explicitly in your environment rather than relying on
+ * the fallback below — check https://ai.google.dev/gemini-api/docs/models
+ * for the current stable model name if you start seeing 404 "no longer
+ * available" errors (different from the transient 503s this file
+ * retries around).
  */
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
@@ -58,18 +74,50 @@ function getModel() {
     );
   }
   const genAI = new GoogleGenerativeAI(apiKey);
-  return genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-2.5-flash" });
+  return genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-3.6-flash" });
 }
 
-async function withRetry(fn, retries = 2) {
+// ---------------------------------------------------------------------
+// Retry helper — only retries errors that look transient (rate limit /
+// overloaded / network blip). A 404 "model no longer available" or a
+// bad-JSON parse error is NOT transient, so it fails fast instead of
+// wasting time retrying something that will never succeed.
+// ---------------------------------------------------------------------
+
+const TRANSIENT_ERROR_RE = /(503|429|overloaded|service unavailable|rate limit|ECONNRESET|ETIMEDOUT|fetch failed)/i;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function withRetry(fn, { retries = 2, baseDelayMs = 1200 } = {}) {
+  let lastErr;
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       return await fn();
     } catch (err) {
-      const is503 = err.message && err.message.includes("503");
-      if (!is503 || attempt === retries) throw err;
-      await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+      lastErr = err;
+      const isTransient = TRANSIENT_ERROR_RE.test(err.message || "");
+      const hasAttemptsLeft = attempt < retries;
+      if (!isTransient || !hasAttemptsLeft) throw err;
+      await sleep(baseDelayMs * (attempt + 1));
     }
+  }
+  throw lastErr;
+}
+
+/**
+ * Runs a real-Gemini call with retries; if it still fails, logs the
+ * reason and returns the mock fallback instead of throwing. Used by
+ * every public function below so a flaky Gemini API never surfaces as
+ * a broken feature during a demo.
+ */
+async function withFallback(label, geminiCall, mockFallback) {
+  try {
+    return await withRetry(geminiCall);
+  } catch (err) {
+    console.error(`[geminiService] ${label} failed after retries, falling back to mock data: ${err.message}`);
+    return mockFallback();
   }
 }
 
@@ -81,7 +129,7 @@ async function withRetry(fn, retries = 2) {
  */
 async function callGeminiJSON(prompt) {
   const model = getModel();
-  const result = await withRetry(() => model.generateContent(prompt));
+  const result = await model.generateContent(prompt);
   const text = result.response.text();
 
   const cleaned = text
@@ -104,7 +152,7 @@ async function callGeminiJSON(prompt) {
  */
 async function callGeminiText(prompt) {
   const model = getModel();
-  const result = await withRetry(() => model.generateContent(prompt));
+  const result = await model.generateContent(prompt);
   return result.response.text().trim();
 }
 
@@ -155,8 +203,11 @@ function validateRevision(data) {
  */
 async function analyzeNotes(subject, text) {
   if (isMockMode()) return mock.mockAnalyzeNotes(subject);
-  const data = await callGeminiJSON(noteAnalysisPrompt(subject, text));
-  return validateAnalysis(data);
+  return withFallback(
+    "analyzeNotes",
+    async () => validateAnalysis(await callGeminiJSON(noteAnalysisPrompt(subject, text))),
+    () => mock.mockAnalyzeNotes(subject)
+  );
 }
 
 /**
@@ -182,8 +233,11 @@ async function generateQuiz(subject, text) {
  */
 async function generateTargetedRevision(subject, topic, contextText) {
   if (isMockMode()) return mock.mockTargetedRevision(topic);
-  const data = await callGeminiJSON(targetedRevisionPrompt(subject, topic, contextText));
-  return validateRevision(data);
+  return withFallback(
+    "generateTargetedRevision",
+    async () => validateRevision(await callGeminiJSON(targetedRevisionPrompt(subject, topic, contextText))),
+    () => mock.mockTargetedRevision(topic)
+  );
 }
 
 /**
@@ -191,7 +245,11 @@ async function generateTargetedRevision(subject, topic, contextText) {
  */
 async function generateTopicExplanation(subject, term) {
   if (isMockMode()) return mock.mockExplanation(term);
-  return callGeminiJSON(explanationPrompt(subject, term));
+  return withFallback(
+    "generateTopicExplanation",
+    () => callGeminiJSON(explanationPrompt(subject, term)),
+    () => mock.mockExplanation(term)
+  );
 }
 
 /**
@@ -201,7 +259,11 @@ async function generateTopicExplanation(subject, term) {
  */
 async function chat(userContext, conversationHistory, userMessage) {
   if (isMockMode()) return mock.mockMentorReply(userMessage, userContext);
-  return callGeminiText(mentorPrompt(userContext, conversationHistory, userMessage));
+  return withFallback(
+    "chat",
+    () => callGeminiText(mentorPrompt(userContext, conversationHistory, userMessage)),
+    () => mock.mockMentorReply(userMessage, userContext)
+  );
 }
 
 /**
