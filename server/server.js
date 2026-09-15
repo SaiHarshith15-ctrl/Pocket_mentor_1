@@ -12,6 +12,14 @@
  */
 
 require("dotenv").config();
+
+process.on("unhandledRejection", (reason) => {
+  console.error("[unhandledRejection]", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("[uncaughtException]", err);
+});
+
 const express = require("express");
 const cors = require("cors");
 const path = require("path");

@@ -58,7 +58,19 @@ function getModel() {
     );
   }
   const genAI = new GoogleGenerativeAI(apiKey);
-  return genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-3.6-flash" });
+  return genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-2.5-flash" });
+}
+
+async function withRetry(fn, retries = 2) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      const is503 = err.message && err.message.includes("503");
+      if (!is503 || attempt === retries) throw err;
+      await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+    }
+  }
 }
 
 /**
@@ -69,7 +81,7 @@ function getModel() {
  */
 async function callGeminiJSON(prompt) {
   const model = getModel();
-  const result = await model.generateContent(prompt);
+  const result = await withRetry(() => model.generateContent(prompt));
   const text = result.response.text();
 
   const cleaned = text
@@ -92,7 +104,7 @@ async function callGeminiJSON(prompt) {
  */
 async function callGeminiText(prompt) {
   const model = getModel();
-  const result = await model.generateContent(prompt);
+  const result = await withRetry(() => model.generateContent(prompt));
   return result.response.text().trim();
 }
 
