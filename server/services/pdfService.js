@@ -6,17 +6,21 @@
  * sent to Gemini. Isolated from noteController so the extraction logic
  * (and its TODOs) are easy to find and swap out.
  *
+ * NOTE: this now takes the PDF as a Buffer (req.file.buffer from
+ * multer's memoryStorage — see middleware/upload.js) instead of a
+ * filesystem path. pdf-parse accepts a Buffer directly, so there's no
+ * need to read anything off disk, which also makes this safe to run on
+ * serverless hosts like Vercel with a read-only filesystem.
+ *
  * CONNECTS TO:
  * - controllers/noteController.js (uploadNote calls extractTextFromPdf)
  */
 
-const fs = require("fs");
 const pdfParse = require("pdf-parse");
 
 const MIN_USEFUL_CHARS = 50;
 
-async function extractTextFromPdf(filePath) {
-  const buffer = fs.readFileSync(filePath);
+async function extractTextFromPdf(buffer) {
   const data = await pdfParse(buffer);
   const text = (data.text || "").trim();
 
