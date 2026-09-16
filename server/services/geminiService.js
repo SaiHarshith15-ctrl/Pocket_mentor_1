@@ -202,11 +202,11 @@ function validateRevision(data) {
  * for the exact JSON shape.
  */
 async function analyzeNotes(subject, text) {
-  if (isMockMode()) return mock.mockAnalyzeNotes(subject);
+  if (isMockMode()) return mock.mockAnalyzeNotes(subject, text);
   return withFallback(
     "analyzeNotes",
     async () => validateAnalysis(await callGeminiJSON(noteAnalysisPrompt(subject, text))),
-    () => mock.mockAnalyzeNotes(subject)
+    () => mock.mockAnalyzeNotes(subject, text)
   );
 }
 
@@ -232,11 +232,11 @@ async function generateQuiz(subject, text) {
  * explanation + 3 flashcards + 3 NEW quiz questions.
  */
 async function generateTargetedRevision(subject, topic, contextText) {
-  if (isMockMode()) return mock.mockTargetedRevision(topic);
+  if (isMockMode()) return mock.mockTargetedRevision(topic, subject);
   return withFallback(
     "generateTargetedRevision",
     async () => validateRevision(await callGeminiJSON(targetedRevisionPrompt(subject, topic, contextText))),
-    () => mock.mockTargetedRevision(topic)
+    () => mock.mockTargetedRevision(topic, subject)
   );
 }
 

@@ -4,7 +4,9 @@
  * else is wrapped in ProtectedRoute, which also enforces onboarding
  * completion.
  */
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
@@ -23,19 +25,26 @@ import Profile from "./pages/Profile";
 
 function Layout({ children }) {
   return (
-    <div className="min-h-screen bg-canvas relative overflow-hidden">
-      {/* Ambient background — same blob treatment as the landing page,
-          fixed so it doesn't scroll away, and far enough back
-          (pointer-events-none, low opacity, blurred) that it never
-          competes with the actual content. */}
+    <div className="min-h-screen bg-canvas text-slate-800 dark:text-slate-100 relative overflow-hidden transition-colors duration-300">
+      {/* Ambient background with delicate mesh glow */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute -top-32 -left-24 w-96 h-96 bg-brand/10 rounded-full blur-3xl animate-blob" />
-        <div className="absolute top-1/3 -right-32 w-[28rem] h-[28rem] bg-accent/10 rounded-full blur-3xl animate-blob [animation-delay:-5s]" />
-        <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-brand/10 rounded-full blur-3xl animate-blob [animation-delay:-9s]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.12),rgba(255,255,255,0))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.18),rgba(11,15,25,0))]" />
+        <div className="absolute -top-32 -left-24 w-96 h-96 bg-brand/10 dark:bg-brand/20 rounded-full blur-3xl animate-blob" />
+        <div className="absolute top-1/3 -right-32 w-[28rem] h-[28rem] bg-accent/10 dark:bg-accent/15 rounded-full blur-3xl animate-blob [animation-delay:-5s]" />
+        <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-brand/10 dark:bg-brand/20 rounded-full blur-3xl animate-blob [animation-delay:-9s]" />
       </div>
 
       <Navbar />
-      <main className="max-w-6xl mx-auto px-4 py-6 relative">{children}</main>
+      <motion.main
+        className="max-w-6xl mx-auto px-4 py-8 relative"
+        variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -16 } }}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        transition={{ duration: 0.35, ease: "easeOut" }}
+      >
+        {children}
+      </motion.main>
     </div>
   );
 }
@@ -135,9 +144,14 @@ function AppRoutes() {
 }
 
 export default function App() {
+  const location = useLocation();
   return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AnimatePresence mode="wait">
+          <AppRoutes key={location.pathname} />
+        </AnimatePresence>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

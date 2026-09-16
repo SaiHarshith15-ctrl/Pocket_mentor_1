@@ -47,13 +47,13 @@ export default function SmartText({ text, keyTerms = [], subject, noteId }) {
 
   return (
     <>
-      <p className="leading-relaxed text-slate-700">
+      <p className="leading-relaxed text-slate-700 dark:text-slate-200 text-sm">
         {parts.map((part, i) =>
           termNames.includes(part) ? (
             <button
               key={i}
               onClick={() => handleClick(part)}
-              className="text-brand underline decoration-dotted decoration-brand/50 underline-offset-2 hover:text-brand-dark font-medium"
+              className="text-brand dark:text-brand-light underline decoration-dotted decoration-brand/60 underline-offset-2 hover:text-brand-dark font-semibold transition-colors px-0.5 rounded hover:bg-brand/10"
             >
               {part}
             </button>
