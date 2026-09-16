@@ -8,7 +8,7 @@ function masteryBadge(m) {
   if (m >= 75) return "badge-green";
   if (m >= 45) return "badge-yellow";
   return "badge-red";
-}git add client/src/pages/Dashboard.jsx
+}
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
