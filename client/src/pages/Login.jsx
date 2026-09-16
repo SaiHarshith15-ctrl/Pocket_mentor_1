@@ -3,11 +3,6 @@
  * Email/password login. On success, AuthContext stores the JWT and
  * ProtectedRoute takes over routing (dashboard vs onboarding).
  */
-/**
- * pages/Login.jsx
- * Email/password login. On success, AuthContext stores the JWT and
- * ProtectedRoute takes over routing (dashboard vs onboarding).
- */
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -35,7 +30,12 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-canvas px-4">
+    <div className="min-h-screen flex items-center justify-center bg-canvas px-4 relative overflow-hidden">
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute -top-24 -left-24 w-80 h-80 bg-brand/10 rounded-full blur-3xl animate-blob" />
+        <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-blob [animation-delay:-6s]" />
+      </div>
+
       <div className="card shadow-popup w-full max-w-sm animate-pop-in">
         <h1 className="text-2xl font-serif italic font-medium text-slate-800 mb-1">Welcome back</h1>
         <p className="text-slate-500 text-sm mb-6">Your notes. Your weak points. Your exam plan.</p>

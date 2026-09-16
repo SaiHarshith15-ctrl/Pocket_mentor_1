@@ -3,11 +3,6 @@
  * Collects department, year, and subjects. Submits to
  * PUT /api/users/onboarding, then routes to the dashboard.
  */
-/**
- * pages/Onboarding.jsx
- * Collects department, year, and subjects. Submits to
- * PUT /api/users/onboarding, then routes to the dashboard.
- */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
@@ -49,7 +44,12 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-canvas flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-canvas flex items-center justify-center px-4 py-10 relative overflow-hidden">
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute -top-24 -left-24 w-80 h-80 bg-brand/10 rounded-full blur-3xl animate-blob" />
+        <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-blob [animation-delay:-6s]" />
+      </div>
+
       <div className="card shadow-popup w-full max-w-lg animate-pop-in">
         <h1 className="text-2xl font-serif italic font-medium text-slate-800 mb-1">Set up your profile</h1>
         <p className="text-slate-500 text-sm mb-6">This shapes your dashboard recommendations.</p>

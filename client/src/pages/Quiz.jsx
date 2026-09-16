@@ -11,6 +11,12 @@
  * to POST /api/quizzes/:id/submit, then shows topic-wise results with a
  * "Rescue Mode" button for any weak (<50%) topic.
  */
+/**
+ * pages/Quiz.jsx
+ * Loads a quiz by id, lets the student answer every question, submits
+ * to POST /api/quizzes/:id/submit, then shows topic-wise results with a
+ * "Rescue Mode" button for any weak (<50%) topic.
+ */
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";

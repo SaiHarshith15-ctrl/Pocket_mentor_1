@@ -23,9 +23,19 @@ import Profile from "./pages/Profile";
 
 function Layout({ children }) {
   return (
-    <div className="min-h-screen bg-canvas">
+    <div className="min-h-screen bg-canvas relative overflow-hidden">
+      {/* Ambient background — same blob treatment as the landing page,
+          fixed so it doesn't scroll away, and far enough back
+          (pointer-events-none, low opacity, blurred) that it never
+          competes with the actual content. */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute -top-32 -left-24 w-96 h-96 bg-brand/10 rounded-full blur-3xl animate-blob" />
+        <div className="absolute top-1/3 -right-32 w-[28rem] h-[28rem] bg-accent/10 rounded-full blur-3xl animate-blob [animation-delay:-5s]" />
+        <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-brand/10 rounded-full blur-3xl animate-blob [animation-delay:-9s]" />
+      </div>
+
       <Navbar />
-      <main className="max-w-6xl mx-auto px-4 py-6">{children}</main>
+      <main className="max-w-6xl mx-auto px-4 py-6 relative">{children}</main>
     </div>
   );
 }

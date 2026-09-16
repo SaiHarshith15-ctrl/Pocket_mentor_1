@@ -12,6 +12,13 @@
  * overall mastery. All data comes from GET /api/dashboard — nothing
  * hardcoded.
  */
+/**
+ * pages/Dashboard.jsx
+ * Main landing page after login: greeting, priority (weakest) topic
+ * with a "Start Rescue Mode" CTA, recommended topics, streak bar, and
+ * overall mastery. All data comes from GET /api/dashboard — nothing
+ * hardcoded.
+ */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";

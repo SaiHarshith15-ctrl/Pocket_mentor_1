@@ -1,13 +1,6 @@
 /**
  * pages/AIMentor.jsx
  * Simple chat UI backed by POST /api/mentor/chat. Sends the running
- * conversation history with each request (see mentorController.js TODO
- * about persisting this server-side in Phase 2). Offers a quick
- * "Start Rescue Mode" action when the mentor names a weak topic.
- */
-/**
- * pages/AIMentor.jsx
- * Simple chat UI backed by POST /api/mentor/chat. Sends the running
  * conversation history with each request. Offers a quick
  * "Start Rescue Mode" action when the mentor names a weak topic.
  */

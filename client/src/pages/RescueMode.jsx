@@ -15,6 +15,12 @@
  *   start -> generate targeted explanation/flashcards/quiz -> take the
  *   re-quiz -> submit -> show mastery before/after -> mastered or retry.
  */
+/**
+ * pages/RescueMode.jsx
+ * The killer feature end to end:
+ *   start -> generate targeted explanation/flashcards/quiz -> take the
+ *   re-quiz -> submit -> show mastery before/after -> mastered or retry.
+ */
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
