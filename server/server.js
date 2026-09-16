@@ -38,6 +38,7 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const mentorRoutes = require("./routes/mentorRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const termRoutes = require("./routes/termRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 
 const app = express();
 
@@ -87,6 +88,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/mentor", mentorRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/terms", termRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 // ---- 404 + error handling (must be registered last) ----
 app.use(notFound);

@@ -58,7 +58,8 @@ api.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       localStorage.removeItem("pocketMentorToken");
-      if (window.location.pathname !== "/login") {
+      const publicPaths = ["/", "/login", "/register"];
+      if (!publicPaths.includes(window.location.pathname)) {
         window.location.href = "/login";
       }
     }
