@@ -16,7 +16,7 @@
  * pages/Dashboard.jsx
  * Main landing page after login: greeting, priority (weakest) topic
  * with a "Start Rescue Mode" CTA, recommended topics, streak bar, and
- * overall mastery. All data comes from GET /api/dashboard — nothing
+ * overall mastery. All data comes from GET /api/dashboard — nothilng
  * hardcoded.
  */
 import { useEffect, useState } from "react";
