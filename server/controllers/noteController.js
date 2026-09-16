@@ -111,44 +111,54 @@ const analyzeNote = asyncHandler(async (req, res) => {
     throw new ApiError(502, `AI analysis failed: ${err.message}`);
   }
 
+  // Do all DB writes first — only mark the note "analyzed" if every
+  // piece (topics, flashcards, quiz) actually succeeds. This prevents
+  // a note ending up "analyzed" with missing flashcards/quiz if any
+  // single insert throws partway through.
+  let flashcards, quiz;
+  try {
+    await Promise.all(
+      analysis.importantTopics.map((t) =>
+        ensureTopic(req.user._id, note.subject, t.name, {
+          note: note._id,
+          importance: t.importance,
+          shortExplanation: t.shortExplanation,
+        })
+      )
+    );
+
+    flashcards = await Flashcard.insertMany(
+      analysis.flashcards.map((f) => ({
+        user: req.user._id,
+        subject: note.subject,
+        topic: f.topic,
+        note: note._id,
+        question: f.question,
+        answer: f.answer,
+        difficulty: f.difficulty,
+        origin: "initial",
+      }))
+    );
+
+    quiz = await Quiz.create({
+      user: req.user._id,
+      subject: note.subject,
+
+      note: note._id,
+      type: "initial",
+      questions: analysis.quiz,
+    });
+  } catch (err) {
+    note.status = "failed";
+    await note.save();
+    throw new ApiError(502, `Saving analysis results failed: ${err.message}`);
+  }
+
   note.summary = analysis.summary;
   note.keyTerms = analysis.keyTerms;
   note.status = "analyzed";
   note.analyzedAt = new Date();
   await note.save();
-
-  // Create/update a Topic row per important topic so mastery tracking
-  // (services/masteryService.js) has something to update later.
-  await Promise.all(
-    analysis.importantTopics.map((t) =>
-      ensureTopic(req.user._id, note.subject, t.name, {
-        note: note._id,
-        importance: t.importance,
-        shortExplanation: t.shortExplanation,
-      })
-    )
-  );
-
-  const flashcards = await Flashcard.insertMany(
-    analysis.flashcards.map((f) => ({
-      user: req.user._id,
-      subject: note.subject,
-      topic: f.topic,
-      note: note._id,
-      question: f.question,
-      answer: f.answer,
-      difficulty: f.difficulty,
-      origin: "initial",
-    }))
-  );
-
-  const quiz = await Quiz.create({
-    user: req.user._id,
-    subject: note.subject,
-    note: note._id,
-    type: "initial",
-    questions: analysis.quiz,
-  });
 
   await recordActivity(req.user._id);
 
@@ -166,7 +176,22 @@ const getNoteQuiz = asyncHandler(async (req, res) => {
   const note = await Note.findOne({ _id: req.params.id, user: req.user._id });
   if (!note) throw new ApiError(404, "Note not found");
 
-  const quiz = await Quiz.findOne({ note: note._id, user: req.user._id }).sort({ createdAt: -1 });
+  let quiz = await Quiz.findOne({ note: note._id, user: req.user._id }).sort({ createdAt: -1 });
+
+  // Self-heal: notes analyzed before this fix (or where quiz creation
+  // silently failed) are "analyzed" but have no quiz doc. Regenerate
+  // one on the fly instead of forcing a delete + re-upload.
+  if (!quiz && note.status === "analyzed") {
+    const analysis = await geminiService.analyzeNotes(note.subject, note.rawText);
+    quiz = await Quiz.create({
+      user: req.user._id,
+      subject: note.subject,
+      note: note._id,
+      type: "initial",
+      questions: analysis.quiz,
+    });
+  }
+
   if (!quiz) throw new ApiError(404, "No quiz found for this note yet — analyze it first");
 
   res.json({ success: true, data: quiz });
