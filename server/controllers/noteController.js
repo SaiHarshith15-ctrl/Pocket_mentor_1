@@ -194,7 +194,7 @@ const getNoteQuiz = asyncHandler(async (req, res) => {
 
   if (!quiz) throw new ApiError(404, "No quiz found for this note yet — analyze it first");
 
-  res.json({ success: true, data: quiz });
+  res.json({ success: true, data: { quiz } });
 });
 
 // DELETE /api/notes/:id
