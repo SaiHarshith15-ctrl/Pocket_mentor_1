@@ -4,55 +4,130 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Default Palette: Indigo Modern */
+  --color-canvas: #F8FAFC;
+  --color-brand: 79 70 229;
+  --color-brand-light: 109 100 240;
+  --color-brand-dark: 67 56 202;
+  --color-accent: 245 158 11;
+  --color-accent-light: 251 191 36;
+}
+
+[data-palette="emerald"] {
+  --color-brand: 5 150 105;
+  --color-brand-light: 16 185 129;
+  --color-brand-dark: 4 120 87;
+  --color-accent: 217 119 6;
+  --color-accent-light: 245 158 11;
+}
+
+[data-palette="violet"] {
+  --color-brand: 124 58 237;
+  --color-brand-light: 139 92 246;
+  --color-brand-dark: 109 40 217;
+  --color-accent: 236 72 153;
+  --color-accent-light: 244 114 182;
+}
+
+[data-palette="rose"] {
+  --color-brand: 225 29 72;
+  --color-brand-light: 244 63 94;
+  --color-brand-dark: 190 18 60;
+  --color-accent: 245 158 11;
+  --color-accent-light: 251 191 36;
+}
+
+[data-palette="teal"] {
+  --color-brand: 13 148 136;
+  --color-brand-light: 20 184 166;
+  --color-brand-dark: 15 118 110;
+  --color-accent: 59 130 246;
+  --color-accent-light: 96 165 250;
+}
+
+html.dark {
+  --color-canvas: #0B0F19;
+  color-scheme: dark;
+}
+
 @layer base {
   body {
-    @apply bg-canvas text-slate-800 font-sans antialiased;
+    @apply bg-canvas text-slate-800 font-sans antialiased transition-colors duration-300;
+  }
+  .dark body {
+    @apply bg-[#0B0F19] text-slate-100;
   }
 }
 
 @layer components {
   /* Surfaces */
   .card {
-    @apply rounded-2xl bg-white border border-slate-200/80 p-5 shadow-card transition-all duration-200;
+    @apply rounded-2xl bg-white/90 border border-slate-200/80 p-5 shadow-card backdrop-blur-sm transition-all duration-300 text-slate-800;
   }
+  .dark .card {
+    @apply bg-slate-900/85 border-slate-800/80 text-slate-100 shadow-xl shadow-black/20;
+  }
+
   .card-hover {
-    @apply hover:-translate-y-0.5 hover:shadow-lift hover:border-brand/30;
+    @apply hover:-translate-y-1 hover:shadow-lift hover:border-brand/40;
+  }
+  .dark .card-hover {
+    @apply hover:border-brand/50 hover:shadow-brand/10;
   }
 
   /* Buttons */
   .btn-primary {
-    @apply rounded-xl bg-brand text-white font-semibold px-4 py-2 shadow-soft
-      transition-all duration-150 hover:bg-brand-dark hover:-translate-y-0.5 hover:shadow-lift
+    @apply rounded-xl bg-brand text-white font-semibold px-4 py-2.5 shadow-md shadow-brand/20
+      transition-all duration-200 hover:bg-brand-dark hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand/30
       active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none disabled:translate-y-0;
   }
+
   .btn-secondary {
-    @apply rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold px-4 py-2
-      transition-all duration-150 hover:border-brand/40 hover:text-brand hover:-translate-y-0.5 hover:shadow-soft
+    @apply rounded-xl border border-slate-200 bg-white/90 text-slate-700 font-semibold px-4 py-2.5 shadow-soft
+      transition-all duration-200 hover:border-brand/40 hover:text-brand hover:-translate-y-0.5 hover:shadow-card
       active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none disabled:translate-y-0;
+  }
+  .dark .btn-secondary {
+    @apply bg-slate-800/90 border-slate-700/80 text-slate-200 hover:bg-slate-700/90 hover:text-white hover:border-brand/50 shadow-none;
   }
 
   /* Inputs */
   .input-field {
-    @apply w-full rounded-xl bg-white border border-slate-200 px-3 py-2 text-sm text-slate-800
-      placeholder-slate-400 transition focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/10;
+    @apply w-full rounded-xl bg-white/90 border border-slate-200 px-3.5 py-2.5 text-sm text-slate-800
+      placeholder-slate-400 transition focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 shadow-sm;
+  }
+  .dark .input-field {
+    @apply bg-slate-900/90 border-slate-700/80 text-slate-100 placeholder-slate-500 focus:border-brand focus:ring-brand/20;
   }
 
   /* Badges */
   .badge-green {
-    @apply inline-flex items-center rounded-full bg-emerald-50 text-emerald-600 font-semibold text-xs px-2.5 py-1;
+    @apply inline-flex items-center rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/60 font-semibold text-xs px-2.5 py-1;
   }
+  .dark .badge-green {
+    @apply bg-emerald-950/60 text-emerald-400 border-emerald-800/50;
+  }
+
   .badge-yellow {
-    @apply inline-flex items-center rounded-full bg-amber-50 text-amber-600 font-semibold text-xs px-2.5 py-1;
+    @apply inline-flex items-center rounded-full bg-amber-50 text-amber-600 border border-amber-200/60 font-semibold text-xs px-2.5 py-1;
   }
+  .dark .badge-yellow {
+    @apply bg-amber-950/60 text-amber-400 border-amber-800/50;
+  }
+
   .badge-red {
-    @apply inline-flex items-center rounded-full bg-rose-50 text-rose-600 font-semibold text-xs px-2.5 py-1;
+    @apply inline-flex items-center rounded-full bg-rose-50 text-rose-600 border border-rose-200/60 font-semibold text-xs px-2.5 py-1;
+  }
+  .dark .badge-red {
+    @apply bg-rose-950/60 text-rose-400 border-rose-800/50;
   }
 
   .text-danger {
-    @apply text-rose-500;
+    @apply text-rose-500 dark:text-rose-400;
   }
   .text-success {
-    @apply text-emerald-500;
+    @apply text-emerald-500 dark:text-emerald-400;
   }
 }
 
@@ -70,6 +145,7 @@
 .flip-card.is-flipped {
   transform: rotateY(180deg);
 }
+
 .flip-face {
   position: absolute;
   inset: 0;
@@ -78,4 +154,14 @@
 }
 .flip-face-back {
   transform: rotateY(180deg);
+}
+
+/* Dark mode canvas override */
+.dark .bg-canvas {
+  background-color: #0B0F19;
+}
+
+/* Ensure smooth color transitions globally */
+html {
+  @apply transition-colors duration-300;
 }

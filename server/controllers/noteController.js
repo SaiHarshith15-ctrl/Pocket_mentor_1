@@ -169,7 +169,23 @@ const getNoteQuiz = asyncHandler(async (req, res) => {
   const quiz = await Quiz.findOne({ note: note._id, user: req.user._id }).sort({ createdAt: -1 });
   if (!quiz) throw new ApiError(404, "No quiz found for this note yet — analyze it first");
 
-  res.json({ success: true, data: { quiz } });
+  res.json({ success: true, data: quiz });
 });
 
-module.exports = { uploadNote, listNotes, getNote, analyzeNote, getNoteQuiz };
+// DELETE /api/notes/:id
+// Removes the note along with all associated flashcards, quizzes, and topics created for it
+const deleteNote = asyncHandler(async (req, res) => {
+  const note = await Note.findOne({ _id: req.params.id, user: req.user._id });
+  if (!note) throw new ApiError(404, "Note not found");
+
+  await Promise.all([
+    Note.deleteOne({ _id: note._id }),
+    Flashcard.deleteMany({ note: note._id, user: req.user._id }),
+    Quiz.deleteMany({ note: note._id, user: req.user._id }),
+    Topic.deleteMany({ note: note._id, user: req.user._id }),
+  ]);
+
+  res.json({ success: true, message: "Note and all generated study materials deleted" });
+});
+
+module.exports = { uploadNote, listNotes, getNote, analyzeNote, getNoteQuiz, deleteNote };

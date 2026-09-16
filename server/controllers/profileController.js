@@ -56,6 +56,7 @@ const getProfile = asyncHandler(async (req, res) => {
       email: user.email,
       department: user.department,
       year: user.year,
+      subjects: user.subjects || [],
       overallMastery,
       currentStreak: user.currentStreak,
       longestStreak: user.longestStreak,

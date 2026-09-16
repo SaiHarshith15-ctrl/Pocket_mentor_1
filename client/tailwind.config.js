@@ -1,18 +1,19 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
     extend: {
       colors: {
-        canvas: "#F5F6FA",
+        canvas: "var(--color-canvas, #F8FAFC)",
         brand: {
-          DEFAULT: "#4F46E5",
-          light: "#6D64F0",
-          dark: "#3F37C9",
+          DEFAULT: "rgb(var(--color-brand, 79 70 229) / <alpha-value>)",
+          light: "rgb(var(--color-brand-light, 109 100 240) / <alpha-value>)",
+          dark: "rgb(var(--color-brand-dark, 67 56 202) / <alpha-value>)",
         },
         accent: {
-          DEFAULT: "#F59E0B",
-          light: "#FBBF24",
+          DEFAULT: "rgb(var(--color-accent, 245 158 11) / <alpha-value>)",
+          light: "rgb(var(--color-accent-light, 251 191 36) / <alpha-value>)",
         },
       },
       fontFamily: {
