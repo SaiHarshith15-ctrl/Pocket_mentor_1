@@ -36,31 +36,8 @@ export default function Flashcards() {
   const subjects = ["All", ...Array.from(new Set(cards.map((c) => c.subject).filter(Boolean)))];
   const activeCards = selectedSubject === "All" ? cards : cards.filter((c) => c.subject === selectedSubject);
 
-  if (activeCards.length === 0) {
-    return (
-      <div className="flex items-center justify-center py-16 px-4">
-        <div className="card text-center max-w-sm p-8 shadow-md">
-          <p className="text-4xl mb-3">🗂️</p>
-          <h2 className="font-bold text-lg text-slate-900 dark:text-slate-50 mb-1">No flashcards in this deck</h2>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mb-5 leading-relaxed">
-            {cards.length > 0 ? "Switch to another subject tab or upload more notes." : "Analyze a note first to generate your deck."}
-          </p>
-          {cards.length > 0 ? (
-            <button className="btn-secondary w-full text-sm" onClick={() => { setSelectedSubject("All"); setIndex(0); }}>
-              View All Flashcards
-            </button>
-          ) : (
-            <button className="btn-primary w-full text-sm" onClick={() => navigate("/notes")}>
-              Go to Notes
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  const done = index >= activeCards.length;
-  const card = !done ? activeCards[index] : null;
+    const done = activeCards.length > 0 && index >= activeCards.length;
+  const card = activeCards.length > 0 && !done ? activeCards[index] : null;
 
   // Victory sound — synthesized with the Web Audio API, no audio file
   // needed. Fires once each time the deck is completed.
@@ -91,7 +68,6 @@ export default function Flashcards() {
   // completed, so "Review Again" gets a new blast too.
   const confetti = useMemo(() => {
     if (!done) return [];
-
     const colors = ["#6366f1", "#22c55e", "#f59e0b", "#ec4899", "#06b6d4", "#a855f7"];
     return Array.from({ length: 28 }, (_, i) => ({
       id: i,
@@ -102,6 +78,29 @@ export default function Flashcards() {
       delay: Math.random() * 0.15,
     }));
   }, [done]);
+
+  if (activeCards.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-16 px-4">
+        <div className="card text-center max-w-sm p-8 shadow-md">
+          <p className="text-4xl mb-3">🗂️</p>
+          <h2 className="font-bold text-lg text-slate-900 dark:text-slate-50 mb-1">No flashcards in this deck</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mb-5 leading-relaxed">
+            {cards.length > 0 ? "Switch to another subject tab or upload more notes." : "Analyze a note first to generate your deck."}
+          </p>
+          {cards.length > 0 ? (
+            <button className="btn-secondary w-full text-sm" onClick={() => { setSelectedSubject("All"); setIndex(0); }}>
+              View All Flashcards
+            </button>
+          ) : (
+            <button className="btn-primary w-full text-sm" onClick={() => navigate("/notes")}>
+              Go to Notes
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   function rate(ratingKey) {
     // Advance immediately for a snappy feel; the rating still gets
