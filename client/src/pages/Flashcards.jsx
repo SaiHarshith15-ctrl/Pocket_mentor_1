@@ -62,15 +62,14 @@ export default function Flashcards() {
   const done = index >= activeCards.length;
   const card = !done ? activeCards[index] : null;
 
-  async function rate(ratingKey) {
-    setSubmitting(true);
-    try {
-      await api.post(`/flashcards/${card._id}/review`, { rating: ratingKey });
-    } finally {
-      setSubmitting(false);
-      setFlipped(false);
-      setIndex((i) => i + 1);
-    }
+  function rate(ratingKey) {
+    // Advance immediately for a snappy feel; the rating still gets
+    // saved, just without blocking the UI on the network round-trip.
+    setFlipped(false);
+    setIndex((i) => i + 1);
+    api.post(`/flashcards/${card._id}/review`, { rating: ratingKey }).catch((err) => {
+      console.error("Failed to save flashcard rating:", err);
+    });
   }
 
   return (
