@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../services/api";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -61,6 +61,47 @@ export default function Flashcards() {
 
   const done = index >= activeCards.length;
   const card = !done ? activeCards[index] : null;
+
+  // Victory sound — synthesized with the Web Audio API, no audio file
+  // needed. Fires once each time the deck is completed.
+  useEffect(() => {
+    if (!done) return;
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const notes = [523.25, 659.25, 783.99, 1046.5]; // C5 E5 G5 C6 arpeggio
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.value = freq;
+        const start = ctx.currentTime + i * 0.09;
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.25, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.4);
+      });
+    } catch (err) {
+      console.error("Victory sound failed to play:", err);
+    }
+  }, [done]);
+
+  // Confetti burst particles — regenerated fresh each time the deck is
+  // completed, so "Review Again" gets a new blast too.
+  const confetti = useMemo(() => {
+    if (!done) return [];
+
+    const colors = ["#6366f1", "#22c55e", "#f59e0b", "#ec4899", "#06b6d4", "#a855f7"];
+    return Array.from({ length: 28 }, (_, i) => ({
+      id: i,
+      color: colors[i % colors.length],
+      angle: (i / 28) * 360 + Math.random() * 12,
+      distance: 120 + Math.random() * 110,
+      size: 6 + Math.random() * 6,
+      delay: Math.random() * 0.15,
+    }));
+  }, [done]);
 
   function rate(ratingKey) {
     // Advance immediately for a snappy feel; the rating still gets
@@ -132,8 +173,27 @@ export default function Flashcards() {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="card shadow-popup text-center py-12 px-6 space-y-4"
+          className="card shadow-popup text-center py-12 px-6 space-y-4 relative overflow-hidden"
         >
+          {/* Confetti blast */}
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+            {confetti.map((p) => (
+              <motion.span
+                key={p.id}
+                className="absolute rounded-sm"
+                style={{ width: p.size, height: p.size, backgroundColor: p.color, top: "50%", left: "50%" }}
+                initial={{ x: 0, y: 0, opacity: 1, rotate: 0 }}
+                animate={{
+                  x: Math.cos((p.angle * Math.PI) / 180) * p.distance,
+                  y: Math.sin((p.angle * Math.PI) / 180) * p.distance,
+                  opacity: 0,
+                  rotate: 360,
+                }}
+                transition={{ duration: 1.1, delay: p.delay, ease: "easeOut" }}
+              />
+            ))}
+          </div>
+
           <p className="text-5xl mb-1">🎉</p>
           <h2 className="font-bold text-2xl text-slate-900 dark:text-slate-50">
             Session Completed!
