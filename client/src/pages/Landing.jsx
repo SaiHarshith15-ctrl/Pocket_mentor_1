@@ -214,16 +214,16 @@ export default function Landing() {
 
       {/* ─── Header Navigation ─── */}
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/80 dark:bg-slate-950/80 border-b border-slate-200/60 dark:border-slate-800/70 transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand via-brand-light to-accent flex items-center justify-center text-white shadow-lg shadow-brand/25 text-lg font-bold">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 sm:h-18 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-brand via-brand-light to-accent flex items-center justify-center text-white shadow-lg shadow-brand/25 text-base sm:text-lg font-bold">
               ⚡
             </div>
-            <div>
-              <span className="font-extrabold text-xl text-slate-900 dark:text-slate-50 tracking-tight">
+            <div className="min-w-0">
+              <span className="font-extrabold text-base sm:text-xl text-slate-900 dark:text-slate-50 tracking-tight whitespace-nowrap">
                 Pocket<span className="text-brand">Mentor</span>
               </span>
-              <span className="hidden sm:inline-block ml-2 px-2 py-0.5 text-[10px] font-bold rounded-md bg-brand/10 text-brand dark:bg-brand/20">
+              <span className="hidden lg:inline-block ml-2 px-2 py-0.5 text-[10px] font-bold rounded-md bg-brand/10 text-brand dark:bg-brand/20">
                 AI Exam Suite
               </span>
             </div>
@@ -237,36 +237,39 @@ export default function Landing() {
             <a href="#testimonials" className="hover:text-brand transition-colors">Student Results</a>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <button
               onClick={toggleTheme}
-              className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors shadow-sm text-sm"
+              className="p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors shadow-sm text-xs sm:text-sm shrink-0"
               title="Toggle theme"
             >
               {theme === "light" ? "🌙" : "☀️"}
             </button>
 
             {user ? (
-              <Link to="/dashboard" className="btn-primary text-xs sm:text-sm py-2 px-5 shadow-md shadow-brand/25">
-                Go to Dashboard →
+              <Link to="/dashboard" className="btn-primary text-xs sm:text-sm py-2 px-3 sm:px-5 shadow-md shadow-brand/25 whitespace-nowrap">
+                <span className="sm:hidden">Dashboard →</span>
+                <span className="hidden sm:inline">Go to Dashboard →</span>
               </Link>
             ) : (
               <>
                 <button
                   onClick={() => { setAuthModal("login"); setAuthError(""); }}
-                  className="px-4 py-2 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-brand dark:hover:text-brand transition-colors"
+                  className="px-2.5 sm:px-4 py-2 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-brand dark:hover:text-brand transition-colors whitespace-nowrap"
                 >
                   Sign In
                 </button>
                 <button
                   onClick={() => { setAuthModal("register"); setAuthError(""); }}
-                  className="btn-primary text-xs sm:text-sm py-2 px-5 shadow-lg shadow-brand/25 hover:scale-105 active:scale-95 transition-all"
+                  className="btn-primary text-xs sm:text-sm py-2 px-3 sm:px-5 shadow-lg shadow-brand/25 hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
                 >
-                  Get Started Free
+                  <span className="sm:hidden">Start Free</span>
+                  <span className="hidden sm:inline">Get Started Free</span>
                 </button>
               </>
             )}
           </div>
+
         </div>
       </header>
 
@@ -312,18 +315,18 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-wrap items-center justify-center gap-4 pt-2"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2 w-full max-w-xs sm:max-w-none mx-auto"
           >
             <button
               onClick={() => { setAuthModal("register"); setAuthError(""); }}
-              className="btn-primary text-base font-bold py-3.5 px-8 shadow-xl shadow-brand/30 hover:shadow-brand/40 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-2"
+              className="btn-primary text-base font-bold py-3.5 px-8 shadow-xl shadow-brand/30 hover:shadow-brand/40 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 w-full sm:w-auto"
             >
               <span>Get Started Free</span>
               <span className="text-lg">→</span>
             </button>
             <button
               onClick={() => { setAuthModal("login"); setAuthError(""); }}
-              className="btn-secondary text-base font-bold py-3.5 px-7 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+              className="btn-secondary text-base font-bold py-3.5 px-7 hover:-translate-y-0.5 active:translate-y-0 transition-all w-full sm:w-auto"
             >
               Sign In to Account
             </button>
