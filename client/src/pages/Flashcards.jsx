@@ -31,12 +31,13 @@ export default function Flashcards() {
     });
   }, [searchParams]);
 
-  if (!cards) return <LoadingSpinner full />;
+  // Everything below is computed with null-safe fallbacks so the hooks
+  // that follow always run in the same order, even before `cards` has
+  // loaded — that's required by React's rules of hooks.
+  const subjects = cards ? ["All", ...Array.from(new Set(cards.map((c) => c.subject).filter(Boolean)))] : ["All"];
+  const activeCards = cards ? (selectedSubject === "All" ? cards : cards.filter((c) => c.subject === selectedSubject)) : [];
 
-  const subjects = ["All", ...Array.from(new Set(cards.map((c) => c.subject).filter(Boolean)))];
-  const activeCards = selectedSubject === "All" ? cards : cards.filter((c) => c.subject === selectedSubject);
-
-    const done = activeCards.length > 0 && index >= activeCards.length;
+  const done = activeCards.length > 0 && index >= activeCards.length;
   const card = activeCards.length > 0 && !done ? activeCards[index] : null;
 
   // Victory sound — synthesized with the Web Audio API, no audio file
@@ -78,6 +79,8 @@ export default function Flashcards() {
       delay: Math.random() * 0.15,
     }));
   }, [done]);
+
+  if (!cards) return <LoadingSpinner full />;
 
   if (activeCards.length === 0) {
     return (
